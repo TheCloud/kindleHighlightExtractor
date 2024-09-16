@@ -3,9 +3,35 @@
 class KindleClippingsParser {
   private $clippingsFile;
   private $clippings = [];
+  private $language;
+  private $languageStrings = [
+    'en' => [
+      'note' => 'Your Note',
+      'highlight' => 'Your Highlight',
+      'bookmark' => 'Your Bookmark',
+      'location' => 'location',
+      'page' => 'page'
+    ],
+    'it' => [
+      'note' => 'La tua nota',
+      'highlight' => 'La tua evidenziazione',
+      'bookmark' => 'Il tuo segnalibro',
+      'location' => 'posizione',
+      'page' => 'pagina'
+    ]
+    // Add more languages please
+  ];
 
-  public function __construct($filePath) {
+  public function __construct($filePath, $language = 'en') {
     $this->clippingsFile = $filePath;
+    $this->setLanguage($language);
+  }
+
+  public function setLanguage($language) {
+    if (!isset($this->languageStrings[$language])) {
+      throw new Exception("Lingua non supportata: $language");
+    }
+    $this->language = $language;
   }
 
   public function parse() {
@@ -24,15 +50,23 @@ class KindleClippingsParser {
         
         $key = $title . '|' . $position;
         
-        if ($type === 'nota') {
+        if ($type === 'note') {
           if (isset($this->clippings[$key])) {
             $this->clippings[$key]['note'] = $content;
           } else {
-            $this->findAndAssociateNote($title, $position, $content);
+            $this->clippings[$key] = [
+              'title' => $title,
+              'metadata' => $metadata,
+              'content' => '',
+              'type' => $type,
+              'position' => $position,
+              'note' => $content
+            ];
           }
         } else {
           if (isset($this->clippings[$key])) {
             $this->clippings[$key]['content'] = $content;
+            $this->clippings[$key]['type'] = $type;
           } else {
             $this->clippings[$key] = [
               'title' => $title,
@@ -49,41 +83,25 @@ class KindleClippingsParser {
   }
 
   private function getClippingType($metadata) {
-    if (strpos($metadata, 'Your Note') !== false || strpos($metadata, 'La tua nota') !== false) {
-      return 'nota';
-    } elseif (strpos($metadata, 'Your Highlight') !== false || strpos($metadata, 'La tua evidenziazione') !== false) {
-      return 'evidenziazione';
+    $strings = $this->languageStrings[$this->language];
+    if (strpos($metadata, $strings['note']) !== false) {
+      return 'note';
+    } elseif (strpos($metadata, $strings['highlight']) !== false) {
+      return 'highlight';
+    } elseif (strpos($metadata, $strings['bookmark']) !== false) {
+      return 'bookmark';
     } else {
-      return 'altro';
+      return 'other';
     }
   }
 
   private function extractPosition($metadata) {
-    if (preg_match('/posizione (\d+)-?(\d+)?/', $metadata, $matches)) {
-      return isset($matches[2]) ? $matches[2] : $matches[1];
-    } elseif (preg_match('/location (\d+)-?(\d+)?/', $metadata, $matches)) {
+    $strings = $this->languageStrings[$this->language];
+    $pattern = '/' . $strings['location'] . ' (\d+)-?(\d+)?/i';
+    if (preg_match($pattern, $metadata, $matches)) {
       return isset($matches[2]) ? $matches[2] : $matches[1];
     }
     return '';
-  }
-
-  private function findAndAssociateNote($title, $notePosition, $noteContent) {
-    foreach ($this->clippings as $key => $clipping) {
-      list($clipTitle, $clipPosition) = explode('|', $key);
-      if ($clipTitle === $title && $clipPosition === $notePosition) {
-        $this->clippings[$key]['note'] = $noteContent;
-        return;
-      }
-    }
-    // Se non trova una corrispondenza, crea una nuova entry per la nota
-    $this->clippings[$title . '|' . $notePosition] = [
-      'title' => $title,
-      'metadata' => '',
-      'content' => '',
-      'type' => 'nota',
-      'position' => $notePosition,
-      'note' => $noteContent
-    ];
   }
 
   public function getClippings() {
