@@ -2,7 +2,7 @@
 
 class KindleClippingsParser {
   private $clippingsFile;
-  private $clippings = [];
+  protected $clippings = [];
   private $language;
   private $languageStrings = [
     'en' => [

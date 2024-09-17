@@ -11,4 +11,4 @@ $xml = $parser->generateAnkiAppXML();
 echo $xml;
 
 // Salva il file XML
-//file_put_contents('anki_decks.xml', $xml);
+file_put_contents('anki_decks.xml', $xml);
