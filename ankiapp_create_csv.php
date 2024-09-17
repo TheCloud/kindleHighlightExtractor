@@ -1,6 +1,6 @@
 <?php
 
-// Examble on how to use the class
+// Example on how to use the class
 include("KindleClippingsParser.class.php");
 
 // Specify the name of the file
@@ -10,14 +10,7 @@ $parser->parse();
 
 $allClippings = $parser->getClippings();
 
-/*
-[title] => Process Communication model® (Italian Edition) (Collignon, Gérard)
-            [metadata] => - La tua nota a pagina 14 | posizione 125 | Aggiunto in data lunedì 16 settembre 2024 16:13:54
-            [content] => trentacinque anni.
-            [type] => highlight
-            [position] => 125
-            [note] => nota testo 35 anni
-*/
+// Where the CSV will be written
 $fn='kindleToAnki_'.date("d-m-Y_His").'.csv';
 $fp = fopen($fn, 'w');
 
