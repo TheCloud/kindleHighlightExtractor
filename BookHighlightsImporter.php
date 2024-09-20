@@ -18,7 +18,7 @@ class BookHighlightsImporter {
         $this->bookTitle = $firstRow[0] ?? '';
 
         // Salta le prime 6 righe
-        for ($i = 0; $i < 4; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             fgetcsv($file);
         }
 
@@ -28,11 +28,15 @@ class BookHighlightsImporter {
             $type = $row[0];
             $text = $row[3] ?? '';
 
-            if ($type === 'Highlight (Yellow)') {
+            if ($type === 'Highlight (Yellow)' || $type === 'Highlight (Pink)') {
                 if ($currentHighlight !== null) {
                     $this->highlights[] = $currentHighlight;
                 }
-                $currentHighlight = ['highlight' => $text, 'note' => ''];
+                $currentHighlight = [
+                    'title' => $this->bookTitle,
+                    'content' => $text,
+                    'note' => ''
+                ];
             } elseif ($type === 'Note' && $currentHighlight !== null) {
                 $currentHighlight['note'] = $text;
             }
