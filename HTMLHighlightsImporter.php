@@ -38,6 +38,7 @@ private function extractHighlightsAndNotes($dom) {
         if (strpos($element->getAttribute('class'), 'noteHeading') !== false) {
             if (strpos(trim($element->textContent), 'Evidenziazione') === 0) {
                 $currentHighlight = [
+		    'title' => $this->bookTitle,
                     'content' => '',
                     'note' => ''
                 ];
