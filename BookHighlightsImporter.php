@@ -9,6 +9,21 @@ class BookHighlightsImporter {
         $this->filePath = $filePath;
     }
 
+public function generateAnkiXML() {
+    $xml = ('<?xml version="1.0" encoding="UTF-8"?>');
+    $xml .= '<deck name="'.htmlentities($this->bookTitle).'"><fields><rich-text name="Front" sides="11"></rich-text><rich-text name="Back" sides="01"></rich-text></fields><cards>';
+
+    foreach ($this->highlights as $highlight) {
+        if (!empty($highlight['note']) && !empty($highlight['content'])) {
+                $xml.="<card><rich-text name='Back'>".htmlentities($highlight['content'])."</rich-text><rich-text name='Front'>".htmlentities($highlight['note'])."</rich-text></card>";
+        }
+    }
+        $xml.='</cards></deck>';
+
+        return $xml;
+}
+
+
     public function import() {
         $file = fopen($this->filePath, 'r');
         
