@@ -15,7 +15,7 @@ class HTMLHighlightsImporter {
         @$dom->loadHTML($html, LIBXML_NOERROR);
 
         $this->extractBookTitle($dom);
-        $this->extractHighlights($dom);
+        $this->extractHighlightsAndNotes($dom);
 
         return $this;
     }
@@ -28,34 +28,39 @@ class HTMLHighlightsImporter {
         }
     }
 
-    private function extractHighlights($dom) {
-        $xpath = new DOMXPath($dom);
-        $highlights = $xpath->query("//div[contains(text(), 'Evidenziazione')]");
+private function extractHighlightsAndNotes($dom) {
+    $xpath = new DOMXPath($dom);
+    $elements = $xpath->query("//div[contains(@class, 'noteHeading') or contains(@class, 'noteText')]");
 
-        foreach ($highlights as $highlight) {
-            $content = $highlight->nextSibling;
-            $note = null;
+    $currentHighlight = null;
 
-            // Cerca la nota associata
-            $nextElement = $content->nextSibling;
-            while ($nextElement) {
-                if (strpos(trim($nextElement->textContent), 'Nota') === 0) {
-                    $note = $nextElement->nextSibling->nextSibling;
-                    break;
-                } else $content=$nextElement;
-                $nextElement = $nextElement->nextSibling;
-            }
-
-            if ($content) {
-                $highlightData = [
-                    'title' => $this->bookTitle,
-                    'content' => trim($content->textContent),
-                    'note' => trim($note->textContent)
+    foreach ($elements as $element) {
+        if (strpos($element->getAttribute('class'), 'noteHeading') !== false) {
+            if (strpos(trim($element->textContent), 'Evidenziazione') === 0) {
+                $currentHighlight = [
+                    'content' => '',
+                    'note' => ''
                 ];
-                $this->highlights[] = $highlightData;
+            } elseif (strpos(trim($element->textContent), 'Nota') === 0 && $currentHighlight !== null) {
+                // Abbiamo trovato una nota, ma aspettiamo il suo contenuto
+                continue;
+            }
+        } elseif (strpos($element->getAttribute('class'), 'noteText') !== false) {
+            if ($currentHighlight !== null) {
+                if (empty($currentHighlight['content'])) {
+                    $currentHighlight['content'] = trim($element->textContent);
+                } else {
+                    $currentHighlight['note'] = trim($element->textContent);
+                    // Aggiungiamo l'highlight solo se ha sia il contenuto che la nota
+                    if (!empty($currentHighlight['content']) && !empty($currentHighlight['note'])) {
+                        $this->highlights[] = $currentHighlight;
+                    }
+                    $currentHighlight = null;
+                }
             }
         }
     }
+}
 
     public function getBookTitle() {
         return $this->bookTitle;
