@@ -7,13 +7,11 @@ $importer->import();
 $bookTitle = $importer->getBookTitle();
 $highlights = $importer->getHighlights();
 
-echo "Titolo del libro: " . $bookTitle . "\n\n";
+echo $importer->generateAnkiXML();
 
+exit;
 foreach ($highlights as $highlight) {
-    echo "Evidenziazione: " . $highlight['content'] . "\n";
-    if (!empty($highlight['note'])) {
-        echo "Nota: " . $highlight['note'] . "\n";
-    }
+	print_r($highlight);
     echo "\n";
 }
 

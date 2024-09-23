@@ -5,6 +5,8 @@ require_once("BookHighlightsImporter.php");
 $importer = new BookHighlightsImporter('tests/title.csv');
 $importer->import();
 
+echo $importer->generateAnkiXML();
+
 $bookTitle = $importer->getBookTitle();
 $highlights = $importer->getHighlights();
 
