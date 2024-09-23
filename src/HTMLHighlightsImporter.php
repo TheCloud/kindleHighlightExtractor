@@ -49,13 +49,19 @@ private function extractHighlightsAndNotes($dom) {
 
     foreach ($elements as $element) {
         if (strpos($element->getAttribute('class'), 'noteHeading') !== false) {
-            if (strpos(trim($element->textContent), 'Evidenziazione') === 0) {
+            if (
+		strpos(trim($element->textContent), 'Evidenziazione') === 0 OR 
+		strpos(trim($element->textContent), 'Highlight') === 0
+	    ) {
                 $currentHighlight = [
 		    'title' => $this->bookTitle,
                     'content' => '',
                     'note' => ''
                 ];
-            } elseif (strpos(trim($element->textContent), 'Nota') === 0 && $currentHighlight !== null) {
+            } elseif ((
+			strpos(trim($element->textContent), 'Nota') === 0 OR
+			strpos(trim($element->textContent), 'Note') === 0
+		)&& $currentHighlight !== null) {
                 // Abbiamo trovato una nota, ma aspettiamo il suo contenuto
                 continue;
             }

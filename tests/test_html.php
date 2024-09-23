@@ -1,5 +1,5 @@
 <?php
-require_once("HTMLHighlightsImporter.php");
+require_once("src/HTMLHighlightsImporter.php");
 
 $importer = new HTMLHighlightsImporter('tests/title2.html');
 $importer->import();
