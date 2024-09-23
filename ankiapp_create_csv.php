@@ -1,7 +1,7 @@
 <?php
 
 // Example on how to use the class
-include("KindleClippingsParser.class.php");
+include("KindleClippingsParser.php");
 
 // Specify the name of the file
 $parser = new KindleClippingsParser('tests/My Clippings.txt');
